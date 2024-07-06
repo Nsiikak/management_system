@@ -22,7 +22,7 @@ import { Request, Response } from 'express';
 @Injectable()
 export class UserService {
   constructor(
-    @InjectRepository(User) private userRepo: Repository<User>,
+    @InjectRepository(User) private readonly userRepo: Repository<User>,
     private readonly jwtService: JwtService,
   ) {}
 
@@ -127,5 +127,20 @@ export class UserService {
   }
   async getAllUser() {
     return await this.userRepo.find();
+  }
+
+  async isBlocked(id: string): Promise<boolean> {
+    const user = await this.userRepo.findOne({ where: { id } });
+    if (!user) {
+      throw new NotFoundException('user not found');
+    }
+    return user.isBlocked;
+  }
+  async blockUser(id: string): Promise<void> {
+    await this.userRepo.update(id, { isBlocked: true });
+  }
+
+  async unblockUser(id: string): Promise<void> {
+    await this.userRepo.update(id, { isBlocked: false });
   }
 }

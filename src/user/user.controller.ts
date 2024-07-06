@@ -7,6 +7,8 @@ import {
   Get,
   UseGuards,
   HttpCode,
+  Param,
+  Put,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from '../dto/create-user.dto';
@@ -16,6 +18,7 @@ import { Roles } from '../guard/role';
 import { AuthGuard } from '@nestjs/passport';
 import { RolesGuard } from '../guard/role.guard';
 import { userRole } from 'enum/role.enum';
+import { BlockGuard } from 'src/guard/block.guard';
 
 @Controller('user')
 export class UserController {
@@ -44,5 +47,18 @@ export class UserController {
   @Roles(userRole.admin, userRole.manager)
   findAll() {
     return this.userService.getAllUser();
+  }
+  @Put('block/:id')
+  @UseGuards(AuthGuard(), RolesGuard, BlockGuard)
+  @Roles(userRole.admin, userRole.manager, userRole.member)
+  async blockUser(@Param('id') id: string) {
+    await this.userService.blockUser(id);
+    return { message: 'user blocked' };
+  }
+  @Put('unblock/:id')
+  @UseGuards(AuthGuard(), RolesGuard, BlockGuard)
+  @Roles(userRole.admin, userRole.manager, userRole.member)
+  async unblockUser(@Param('id') id: string) {
+    await this.userService.unblockUser(id);
   }
 }

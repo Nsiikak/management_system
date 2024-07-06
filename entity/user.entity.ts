@@ -14,6 +14,9 @@ export class User extends Base {
   @Column({ unique: true })
   email: string;
 
+  @Column({ default: false })
+  isBlocked: boolean;
+
   @Column({ type: 'enum', enum: userRole, default: userRole.member })
   role: userRole;
 
